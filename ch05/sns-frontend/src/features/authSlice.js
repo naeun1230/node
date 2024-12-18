@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { registerUser, loginUser, logoutUser } from '../api/snsApi'
+import { registerUser, loginUser, logoutUser, checkAuthStatus } from '../api/snsApi'
 
 /*
 rejectWithValue: 에러 메세지를 rejected에 action.payload로 전달할 때 사용
@@ -51,6 +51,16 @@ export const logoutUserThunk = createAsyncThunk('auth/logoutUser', async (_, { r
    }
 })
 
+//로그인 상태확인 thunk
+export const checkAuthStatusThunk = createAsyncThunk('auth/checkAuthStatus', async (_, { rejectWithValue }) => {
+   try {
+      const response = await checkAuthStatus()
+      return response.data
+   } catch (error) {
+      return rejectWithValue(error.response?.data?.message || '상태 확인 실패')
+   }
+})
+
 const authSlice = createSlice({
    name: 'auth',
    initialState: {
@@ -74,7 +84,7 @@ const authSlice = createSlice({
             state.user = action.payload
          })
          .addCase(registerUserThunk.rejected, (state, action) => {
-            state.loading = true
+            state.loading = false
             state.error = action.payload
          })
       //로그인
@@ -89,7 +99,7 @@ const authSlice = createSlice({
             state.user = action.payload
          })
          .addCase(loginUserThunk.rejected, (state, action) => {
-            state.loading = true
+            state.loading = false
             state.error = action.payload
          })
       //로그아웃
@@ -104,8 +114,25 @@ const authSlice = createSlice({
             state.user = null //로그아웃 후 유저 정보 초기화
          })
          .addCase(logoutUserThunk.rejected, (state, action) => {
-            state.loading = true
+            state.loading = false
             state.error = action.payload
+         })
+      //로그인 상태 확인
+      builder
+         .addCase(checkAuthStatusThunk.pending, (state) => {
+            state.loading = true
+            state.error = null
+         })
+         .addCase(checkAuthStatusThunk.fulfilled, (state, action) => {
+            state.loading = false
+            state.isAuthenticated = action.payload.isAuthenticated
+            state.user = action.payload.user || null
+         })
+         .addCase(checkAuthStatusThunk.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+            state.isAuthenticated = false
+            state.user = null
          })
    },
 })
