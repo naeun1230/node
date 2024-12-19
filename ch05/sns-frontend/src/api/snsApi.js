@@ -19,7 +19,7 @@ export const registerUser = async (userData) => {
       return response
    } catch (error) {
       console.error(`API Request 오류: ${error.message}`)
-      throw error //request할 때 오류 발생시 에러를 registerUser() 함수를 실행한 곳으로 던짐
+      throw error //request 할때 오류 발생시 에러를 registerUser() 함수를 실행한 곳으로 던짐
    }
 }
 
@@ -60,6 +60,7 @@ export const checkAuthStatus = async () => {
 export const createPost = async (postData) => {
    try {
       //postData: 등록할 게시물 데이터가 담겨있는 json객체
+
       const config = {
          headers: {
             'Content-Type': 'multipart/form-data', // 파일 전송시 반드시 지정
@@ -75,10 +76,9 @@ export const createPost = async (postData) => {
 }
 
 //포스트 수정
-//게시물을 구분하기 위한 id값
 export const updatePost = async (id, postData) => {
    try {
-      //postData: 등록할 게시물 데이터가 담겨있는 json객체
+      //postData: 수정할 게시물 데이터가 담겨있는 json객체
 
       const config = {
          headers: {
@@ -86,7 +86,6 @@ export const updatePost = async (id, postData) => {
          },
       }
 
-      //수정은 put
       const response = await snsApi.put(`/post/${id}`, postData, config)
       return response
    } catch (error) {
@@ -121,6 +120,39 @@ export const getPostById = async (id) => {
 export const getPosts = async (page) => {
    try {
       const response = await snsApi.get(`/post?page=${page}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}
+
+// 내 프로필 가져오기
+export const getProfile = async () => {
+   try {
+      const response = await snsApi.get(`/page/profile`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}
+
+// 특정 사용자 프로필 가져오기
+export const getProfileId = async (id) => {
+   try {
+      const response = await snsApi.get(`/page/profile/${id}`)
+      return response
+   } catch (error) {
+      console.error(`API Request 오류: ${error.message}`)
+      throw error
+   }
+}
+
+// 사용자를 팔로우
+export const followUser = async (id) => {
+   try {
+      const response = await snsApi.post(`/user/${id}/follow`)
       return response
    } catch (error) {
       console.error(`API Request 오류: ${error.message}`)
